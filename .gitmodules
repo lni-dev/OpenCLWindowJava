@@ -1,0 +1,3 @@
+[submodule "OpenCLWindow"]
+	path = libs/OpenCLWindow
+	url = https://github.com/lni-dev/OpenCLWindow.git
