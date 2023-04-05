@@ -1,5 +1,7 @@
 
 
+// Copyright (c) 2023 Linus Andera
+
 #define int2(X, Y) ((int2)(X, Y))
 #define int3(X, Y, Z) ((int3)(X, Y, Z))
 #define int4(X, Y, Z, W) ((int4)(X, Y, Z, W))
