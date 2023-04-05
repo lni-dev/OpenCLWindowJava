@@ -1,0 +1,10 @@
+/cmake-build-debug/
+/cmake-build-release/
+/libs/OpenCLWindow/cmake-build-debug/
+/libs/OpenCLWindow/cmake-build-release/
+/build/
+/.gradle/
+/libglad.a
+/libglfw3.a
+/libOpenCLWindow.a
+/libOpenCLWindowJava.jnilib
