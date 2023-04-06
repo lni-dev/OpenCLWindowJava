@@ -22,12 +22,12 @@ target_link_libraries(test PUBLIC OpenCLWindow -static-libgcc -static-libstdc++ 
 
 
 add_library(${PROJECT_NAME} MODULE
-        src/main/cpp/de_linusdev_nat_openclwindow_OpenCLWindowJava.cpp
+        src/main/cpp/nat_OpenCLWindowJava.cpp
+        src/main/cpp/nat_GPUBuffer.cpp
         src/main/cpp/OpenClWindowJava.cpp
         )
 
-set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".jnilib"
-        PUBLIC_HEADER include/de_linusdev_nat_openclwindow_OpenCLWindowJava.h)
+set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".jnilib")
 
 
 

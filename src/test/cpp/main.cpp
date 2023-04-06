@@ -30,6 +30,15 @@ int main() {
     w.setProgramCode(readResourceFile("render.cl"));
     w.show();
 
+    while (!w.checkIfWindowShouldClose())
+    {
+
+        w.render();
+        w.swapBuffer();
+    }
+
+    w.destroy();
+
     return 0;
 }
 

@@ -2,6 +2,7 @@
 
 // Copyright (c) 2023 Linus Andera
 
+
 #define int2(X, Y) ((int2)(X, Y))
 #define int3(X, Y, Z) ((int3)(X, Y, Z))
 #define int4(X, Y, Z, W) ((int4)(X, Y, Z, W))
@@ -30,7 +31,7 @@
 
 //CURRENTLY FIXED VALUES
 #define MIN_DISTANCE 0.0001f
-#define MAX_STEPS 1000u
+#define MAX_STEPS 100u
 #define RENDER_DISTANCE 100.f
 
 #define UP_VECTOR float3(0.f, 1.f, 0.f)
@@ -39,6 +40,13 @@
 #define BOX_1_ID 1u
 #define GROUND_ID 4u
 
+typedef struct camera
+{
+    float3 position;
+    float3 lookAtVector;
+    float distanceToScreen;
+} camera;
+//size 48
 
 float sdfBox(float3 pos, float3 center, float3 size) {
     pos -= center;
@@ -121,12 +129,14 @@ Hit rayMarch(Ray r){
     return hit;
 }
 
-float4 mainImage(float2 uv) {
+float4 mainImage(float2 uv, camera cam) {
     float4 col = float4(0.0);
 
     //read Vars
-    float4 camPosition = float4(4.f, 4.f, 0.f, 1.f); //xyz = pos; w = distance to screen
-    float4 viewDirection = float4(0.f, .5f, 0.f, 2.f) - camPosition;
+    float4 camPosition = float4(1.f); //xyz = pos; w = distance to screen
+    camPosition.xyz = cam.position;
+    float4 viewDirection = float4(1.f);
+    viewDirection.xyz = cam.lookAtVector - camPosition.xyz;
     viewDirection.xyz = normalize(viewDirection.xyz);
     
     //calc ray Direction
@@ -181,17 +191,20 @@ float4 mainImage(float2 uv) {
 }
 
 
+
 __kernel void render(
     __write_only image2d_t img,
-    const int2 screenSize
+    const int2 screenSize,
+    const camera cam
     //__read_only float3 cameraPos
     ) 
 {
+
     const int2 cordi = int2(get_global_id(0), get_global_id(1));
     const float2 uv = float2(
             ((float) (cordi.x - (screenSize.x / 2))) / ((float) screenSize.y),
             ((float) (cordi.y - (screenSize.y / 2))) / ((float) screenSize.y)
         );
 
-    write_imagef(img, cordi, mainImage(uv));               
+    write_imagef(img, cordi, mainImage(uv, cam));
 }

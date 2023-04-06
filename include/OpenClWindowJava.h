@@ -27,11 +27,11 @@ namespace linusdev::java {
 
     private:
 
-        JNIEnv* env;
-        jobject globalJavaRef;
-        jmethodID onKeyMethodId;
-        jmethodID onCursorMethodId;
-        jmethodID onMouseButtonMethodId;
+        JNIEnv* env= nullptr;
+        jobject globalJavaRef= nullptr;
+        jmethodID onKeyMethodId = nullptr;
+        jmethodID onCursorMethodId = nullptr;
+        jmethodID onMouseButtonMethodId = nullptr;
 
         void onKey(int key, int scancode, int action, int mods) override;
 

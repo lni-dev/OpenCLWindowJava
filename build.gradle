@@ -1,5 +1,4 @@
 import java.nio.file.Files
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 
 plugins {
@@ -29,9 +28,9 @@ def cnlTask = tasks.register('copy-native-libraries') {
     def glfwLib = projectPath.resolve("cmake-build-release\\_deps\\glfw3-build\\src\\libglfw3.a")
 
     if(Files.exists(mainLib) && Files.exists(baseLib) && Files.exists(gladLib) && Files.exists(glfwLib)) {
-        project.logger.lifecycle("Copying c/++ libraries");
-        def resourceMainDir = projectPath.resolve("src/main/resources/native-libraries");
-        def resourceTestDir = projectPath.resolve("src/test/resources/native-libraries");
+        project.logger.lifecycle("Copying c/++ libraries")
+        def resourceMainDir = projectPath.resolve("src/main/resources/native-libraries")
+        def resourceTestDir = projectPath.resolve("src/test/resources/native-libraries")
 
         Files.copy(mainLib, resourceMainDir.resolve(mainLib.getFileName()), StandardCopyOption.REPLACE_EXISTING)
         Files.copy(baseLib, resourceMainDir.resolve(baseLib.getFileName()), StandardCopyOption.REPLACE_EXISTING)
@@ -43,7 +42,7 @@ def cnlTask = tasks.register('copy-native-libraries') {
         Files.copy(gladLib, resourceTestDir.resolve(gladLib.getFileName()), StandardCopyOption.REPLACE_EXISTING)
         Files.copy(glfwLib, resourceTestDir.resolve(glfwLib.getFileName()), StandardCopyOption.REPLACE_EXISTING)
     } else {
-        project.logger.lifecycle("Cannot copy c/++ libraries.");
+        project.logger.lifecycle("Cannot copy c/++ libraries.")
         project.logger.lifecycle(mainLib.toString() + ": " + (Files.exists(mainLib) ? "found" : "missing"))
         project.logger.lifecycle(baseLib.toString() + ": " + (Files.exists(baseLib) ? "found" : "missing"))
         project.logger.lifecycle(gladLib.toString() + ": " + (Files.exists(gladLib) ? "found" : "missing"))
@@ -54,7 +53,7 @@ def cnlTask = tasks.register('copy-native-libraries') {
 tasks.named("build").get().dependsOn(cnlTask)
 
 dependencies {
-    api 'de.linusdev:lutils:1.0.6'
+    api 'de.linusdev:lutils:1.0.7'
     api 'org.jetbrains:annotations:23.0.0'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'

@@ -12,13 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "../../../include/OpenClWindowJava.h"
+#include "OpenClWindowJava.h"
 
 namespace linusdev::java {
 
     OpenClWindowJava::OpenClWindowJava(JNIEnv *env, jobject obj) {
-        setKeyListener(this);
-        setMouseListener(this);
 
         this->env = env;
         this->globalJavaRef = env->NewGlobalRef(obj);
@@ -27,6 +25,9 @@ namespace linusdev::java {
         this->onKeyMethodId = env->GetMethodID(clazz, "onKey", "(IIII)V");
         this->onCursorMethodId = env->GetMethodID(clazz, "onMouseCursor", "(DD)V");
         this->onMouseButtonMethodId = env->GetMethodID(clazz, "onMouseButton", "(III)V");
+
+        setKeyListener(this);
+        setMouseListener(this);
     }
 
     void OpenClWindowJava::onKey(int key, int scancode, int action, int mods) {
