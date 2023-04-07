@@ -21,6 +21,7 @@ JNIEXPORT jobject JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1create
 
     cl_int err;
     auto* buffer = new cl::Buffer(*(win->getContext()), clMemFlags, size, (void*) dataPointer, &err);
+
     auto* ret = new BufCreateReturn(0L, reinterpret_cast<jlong>(buffer), err);
     ret->selfPointer = reinterpret_cast<jlong>(ret);
 
@@ -34,11 +35,11 @@ JNIEXPORT jobject JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1create
  * Signature: (JIIIJ)I
  */
 JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1enqueueWriteBuffer
-  (JNIEnv* env, jclass clazz, jlong pointer, jlong winPointer, jint blocking, jint offset, jint size, jlong dataPointer) {
+  (JNIEnv* env, jclass clazz, jlong pointer, jlong winPointer, jboolean blocking, jint offset, jint size, jlong dataPointer) {
     auto* buf = (cl::Buffer*) pointer;
     auto* win = (OpenClWindowJava*) winPointer;
 
-    return win->getQueue()->enqueueWriteBuffer(*buf, blocking, offset, size, reinterpret_cast<const void*>(dataPointer),
+    return win->getQueue()->enqueueWriteBuffer(*buf, blocking == JNI_TRUE ? CL_TRUE : CL_FALSE, offset, size, reinterpret_cast<const void*>(dataPointer),
                                         nullptr, nullptr);
 }
 

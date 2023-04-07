@@ -17,47 +17,42 @@
 package de.linusdev.openclwindow.types;
 
 import de.linusdev.openclwindow.structs.Structure;
-import de.linusdev.openclwindow.structs.StructureInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
+import java.nio.FloatBuffer;
 
 @SuppressWarnings("unused")
-public class IntN extends Structure {
+abstract class BBFloatN extends Structure implements FloatN {
 
-    public static StructureInfo INFO = new StructureInfo(4, false, 0, 4, 0);
-
-
-    protected IntBuffer buf;
+    protected FloatBuffer buf;
     protected final int memberCount;
 
-    public IntN(@NotNull Structure mostParentStructure, int offset, int count) {
+    public BBFloatN(@NotNull Structure mostParentStructure, int offset, int count) {
         this.memberCount = count;
         useBuffer(mostParentStructure, offset);
     }
 
-    public IntN(int count, boolean allocateBuffer) {
+    public BBFloatN(int count, boolean allocateBuffer) {
         this.memberCount = count;
         if(allocateBuffer)
             allocate();
     }
 
-    @Override
-    public void useBuffer(@NotNull Structure mostParentStructure, int offset) {
-        super.useBuffer(mostParentStructure, offset);
-        buf = byteBuf.asIntBuffer();
+    public void modified() {
+        modified(0, getSize());
     }
 
     @Override
-    protected @NotNull StructureInfo getInfo() {
-        return INFO;
+    public void useBuffer(@NotNull Structure mostParentStructure, int offset) {
+        super.useBuffer(mostParentStructure, offset);
+        buf = byteBuf.asFloatBuffer();
     }
 
     /**
      * Count of floats in this buffer.
      * @return float count in this buffer
      */
+    @Override
     public int getMemberCount() {
         return memberCount;
     }
@@ -75,5 +70,16 @@ public class IntN extends Structure {
 
         return String.format("float%d(%s)", memberCount, sb);
     }
-}
 
+    @Override
+    public float get(int index) {
+        return buf.get(index);
+    }
+
+    @Override
+    public @NotNull BBFloatN put(int index, float value) {
+        buf.put(index, value);
+        return this;
+    }
+
+}

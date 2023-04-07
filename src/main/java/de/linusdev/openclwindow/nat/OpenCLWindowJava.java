@@ -17,6 +17,7 @@
 package de.linusdev.openclwindow.nat;
 
 import de.linusdev.lutils.bitfield.LongVolatileBitfield;
+import de.linusdev.openclwindow.OpenCLException;
 import de.linusdev.openclwindow.enums.Modifiers;
 import de.linusdev.openclwindow.enums.OpenCLErrorCodes;
 import de.linusdev.openclwindow.nat.loader.LibraryLoader;
@@ -112,9 +113,15 @@ public class OpenCLWindowJava implements AutoCloseable {
     }
 
     public void setKernelArg(int index, @NotNull Structure struct) {
-        int err = _setKernelArg(objectPointer, index, struct.getByteBuf(), struct.size());
+        int err = _setKernelArg(objectPointer, index, struct.getByteBuf(), struct.getSize());
         if(err != 0)
-            throw new RuntimeException("Error while setting kernel arg: " + OpenCLErrorCodes.checkError(err));
+            throw new OpenCLException(OpenCLErrorCodes.checkError(err));
+    }
+
+    public void setKernelArg(int index, @NotNull GPUBuffer buffer) {
+        int err = _setKernelArg(objectPointer, index, buffer.getPointer());
+        if(err != 0)
+            throw new OpenCLException(OpenCLErrorCodes.checkError(err));
     }
 
     public boolean checkIfWindowShouldClose() {
@@ -152,6 +159,7 @@ public class OpenCLWindowJava implements AutoCloseable {
     private native void _setBorderlessFullscreen(long pointer);
     private native void _setProgramCode(long pointer, String string);
     private native int _setKernelArg(long pointer, int index, ByteBuffer buffer, int bufSize);
+    private static native int _setKernelArg(long pointer, int index, long clBufferPointer);
 
     /*
      * Methods, that should be called natively only:

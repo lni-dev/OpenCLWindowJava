@@ -28,9 +28,11 @@ import java.nio.ByteOrder;
 
 public class GPUBuffer implements AutoCloseable {
 
-    private final long pointer;
+    protected final long pointer;
+    protected @NotNull OpenCLWindowJava window;
 
     public GPUBuffer(@NotNull OpenCLWindowJava win, @NotNull IntBitfield<CLMemoryFlags> clMemFlags, @NotNull ByteBuffer data) {
+        this.window = win;
 
         ByteBuffer createRet = _create(win.getPointer(), clMemFlags.getValue(), data.capacity(), BufferUtils.getHeapAddress(data));
         createRet.order(ByteOrder.nativeOrder());
@@ -47,15 +49,28 @@ public class GPUBuffer implements AutoCloseable {
 
     }
 
+    public void enqueueWriteBuffer(boolean blocking, int offset, int size, @NotNull ByteBuffer data, boolean addOffsetToBufferAddress) {
+        int err = _enqueueWriteBuffer(pointer, window.getPointer(), blocking, offset, size,
+                addOffsetToBufferAddress ? (BufferUtils.getHeapAddress(data) + offset) :  BufferUtils.getHeapAddress(data));
+        if(err != OpenCLErrorCodes.CL_SUCCESS.getCode())
+            throw new OpenCLException(OpenCLErrorCodes.checkError(err));
+    }
+
     @Override
     public void close() {
         _delete(pointer);
     }
 
-    private native ByteBuffer _create(long winPointer, long clMemFlags, int size, long dataPointer);
-    private static native int _enqueueWriteBuffer(long pointer, long winPointer, int blocking, int offset, int size, long dataPointer);
-    private static native void _delete(long pointer);
-    private static native void _deleteReturnStruct(long pointer);
+    //package-private methods
+    long getPointer() {
+        return pointer;
+    }
+
+    //native methods
+    protected native ByteBuffer _create(long winPointer, long clMemFlags, int size, long dataPointer);
+    protected static native int _enqueueWriteBuffer(long pointer, long winPointer, boolean blocking, int offset, int size, long dataPointer);
+    protected static native void _delete(long pointer);
+    protected static native void _deleteReturnStruct(long pointer);
 
 
 

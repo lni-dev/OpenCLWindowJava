@@ -19,11 +19,11 @@ package de.linusdev.openclwindow.structs;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 public abstract class ComplexStructure extends Structure {
 
-    protected @NotNull Structure[] items;
+    protected @NotNull Structure [] items;
+
 
     public ComplexStructure() {
 
@@ -36,23 +36,27 @@ public abstract class ComplexStructure extends Structure {
     }
 
     @Override
-    public void useBuffer(@NotNull ByteBuffer buffer) {
-        super.useBuffer(buffer);
+    protected void onModification(int offset, int size) {
+        super.onModification(offset, size);
+
+
+
+    }
+
+    @Override
+    public void useBuffer(@NotNull Structure mostParentStructure, int offset) {
+        super.useBuffer(mostParentStructure, offset);
         StructureInfo info = getInfo();
 
         int[] sizes = info.getSizes();
 
-        byteBuf.position(0);
-        byteBuf.limit(0);
-
+        int position = 0;
         for(int i = 0; i < items.length ; i++) {
-            byteBuf.position(byteBuf.limit() + sizes[i * 2]);
-            byteBuf.limit(byteBuf.position() + sizes[i * 2 + 1]);
-            items[i].useBuffer(byteBuf.slice().order(ByteOrder.nativeOrder()));
+            position += sizes[i * 2];
+            items[i].useBuffer(mostParentStructure, offset + position);
+            position += sizes[i * 2 + 1];
         }
 
-        byteBuf.position(0);
-        byteBuf.limit(byteBuf.capacity());
     }
 
     public String toString(@NotNull Structure @NotNull ... items) {

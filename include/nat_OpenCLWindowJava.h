@@ -13,7 +13,7 @@ extern "C" {
  * Signature: ()J
  */
 JNIEXPORT jlong JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1create
-  (JNIEnv *, jobject);
+        (JNIEnv *, jobject);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -21,7 +21,7 @@ JNIEXPORT jlong JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1cre
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1show
-  (JNIEnv *, jobject, jlong);
+        (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -29,7 +29,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1show
  * Signature: (J)Z
  */
 JNIEXPORT jboolean JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1checkIfWindowShouldClose
-  (JNIEnv *, jclass, jlong);
+        (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -37,7 +37,7 @@ JNIEXPORT jboolean JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1render
-  (JNIEnv *, jclass, jlong);
+        (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -45,7 +45,7 @@ JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1rend
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1swapBuffer
-  (JNIEnv *, jclass, jlong);
+        (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1swap
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1destroy
-  (JNIEnv *, jclass, jlong);
+        (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -61,7 +61,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1dest
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1delete
-  (JNIEnv *, jobject, jlong);
+        (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -69,7 +69,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1dele
  * Signature: (JLjava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setTitle
-  (JNIEnv *, jobject, jlong, jstring);
+        (JNIEnv *, jobject, jlong, jstring);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setT
  * Signature: (JII)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setSize
-  (JNIEnv *, jobject, jlong, jint, jint);
+        (JNIEnv *, jobject, jlong, jint, jint);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -85,7 +85,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setS
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setBorderlessFullscreen
-  (JNIEnv *, jobject, jlong);
+        (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
@@ -93,15 +93,23 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setB
  * Signature: (JLjava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setProgramCode
-  (JNIEnv *, jobject, jlong, jstring);
+        (JNIEnv *, jobject, jlong, jstring);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
  * Method:    _setKernelArg
  * Signature: (JILjava/nio/ByteBuffer;I)I
  */
-JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg
-  (JNIEnv *, jobject, jlong, jint, jobject, jint);
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg__JILjava_nio_ByteBuffer_2I
+        (JNIEnv *, jobject, jlong, jint, jobject, jint);
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _setKernelArg
+ * Signature: (JIJ)I
+ */
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg__JIJ
+        (JNIEnv *, jclass, jlong, jint, jlong);
 
 #ifdef __cplusplus
 }

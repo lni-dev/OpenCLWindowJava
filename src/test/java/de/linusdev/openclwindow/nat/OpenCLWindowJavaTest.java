@@ -19,6 +19,8 @@ package de.linusdev.openclwindow.nat;
 import de.linusdev.lutils.bitfield.IntBitfield;
 import de.linusdev.openclwindow.enums.CLMemoryFlags;
 import de.linusdev.openclwindow.structs.CameraStruct;
+import de.linusdev.openclwindow.types.BBFloat3;
+import de.linusdev.openclwindow.types.VMath;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -31,14 +33,8 @@ class OpenCLWindowJavaTest {
     public void test() throws IOException {
         CameraStruct cam = new CameraStruct(true);
 
-
-        cam.position.x(4.f);
-        cam.position.y(4.f);
-        cam.position.z(0.f);
-
-        cam.lookAtVector.x(0.f);
-        cam.lookAtVector.y(.5f);
-        cam.lookAtVector.z(0.f);
+        cam.position.xyz(4f, 4f, 0f);
+        cam.lookAtVector.xyz(0f, .5f, 0f);
         cam.distanceToScreen.set(1.f);
 
         OpenCLWindowJava window = new OpenCLWindowJava();
@@ -51,17 +47,20 @@ class OpenCLWindowJavaTest {
             //scancodes: w: 17, a:30, s:31, d: 32
         });
 
-        window.setKernelArg(2, cam);
-
         IntBitfield<CLMemoryFlags> flags = new IntBitfield<>();
         flags.set(CLMemoryFlags.CL_MEM_READ_ONLY, CLMemoryFlags.CL_MEM_COPY_HOST_PTR,
                 CLMemoryFlags.CL_MEM_HOST_WRITE_ONLY);
         GPUBuffer buf = new GPUBuffer(window, flags, cam.getByteBuf());
 
-        buf.close();
+        window.setKernelArg(2, buf);
 
         window.show();
 
+        BBFloat3 a = new BBFloat3(true);
+        a.x(0.5f);
+
+        double fpsChecksSum = 0d;
+        int fpsCheckCount = 0;
         long lastFPSCheck = System.currentTimeMillis();
         int frames = 0;
         double fps;
@@ -69,17 +68,31 @@ class OpenCLWindowJavaTest {
             window.render();
             window.swapBuffer();
 
-            cam.position.x(cam.position.x() + 0.01f);
-            window.setKernelArg(2, cam);
+            if(cam.isModified()) {
+                cam.unmodified();
+                System.out.println("enqueueWriteBuffer");
+                buf.enqueueWriteBuffer(false, 0,
+                        cam.position.getByteBuf().capacity(), cam.position.getByteBuf(), false);
+            }
+
 
             if(frames++ == 100) {
+                VMath.add(cam.position, a, cam.position);
                 fps = 1000.d / ((System.currentTimeMillis() - lastFPSCheck) / ((double) frames));
                 lastFPSCheck = System.currentTimeMillis();
                 frames = 0;
+
+                fpsChecksSum += fps;
+                fpsCheckCount++;
                 System.out.println(fps);
             }
+
+            if(fpsCheckCount == 20) break;
         }
 
+        buf.close();
         window.close();
+
+        System.out.println("Average FPS: " + (fpsChecksSum / fpsCheckCount));
     }
 }

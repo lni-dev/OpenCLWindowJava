@@ -13,15 +13,15 @@ extern "C" {
  * Signature: (JJIJ)Ljava/nio/ByteBuffer;
  */
 JNIEXPORT jobject JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1create
-  (JNIEnv *, jobject, jlong, jlong, jint, jlong);
+        (JNIEnv *, jobject, jlong, jlong, jint, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_GPUBuffer
  * Method:    _enqueueWriteBuffer
- * Signature: (JJIIIJ)I
+ * Signature: (JJZIIJ)I
  */
 JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1enqueueWriteBuffer
-  (JNIEnv *, jclass, jlong, jlong, jint, jint, jint, jlong);
+        (JNIEnv *, jclass, jlong, jlong, jboolean, jint, jint, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_GPUBuffer
@@ -29,7 +29,7 @@ JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1enqueueWrit
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1delete
-  (JNIEnv *, jclass, jlong);
+        (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_GPUBuffer
@@ -37,7 +37,7 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1delete
  * Signature: (J)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_GPUBuffer__1deleteReturnStruct
-  (JNIEnv *, jclass, jlong);
+        (JNIEnv *, jclass, jlong);
 
 #ifdef __cplusplus
 }

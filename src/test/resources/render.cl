@@ -195,7 +195,7 @@ float4 mainImage(float2 uv, camera cam) {
 __kernel void render(
     __write_only image2d_t img,
     const int2 screenSize,
-    const camera cam
+    __global __read_only camera* cam
     //__read_only float3 cameraPos
     ) 
 {
@@ -206,5 +206,5 @@ __kernel void render(
             ((float) (cordi.y - (screenSize.y / 2))) / ((float) screenSize.y)
         );
 
-    write_imagef(img, cordi, mainImage(uv, cam));
+    write_imagef(img, cordi, mainImage(uv, *cam));
 }

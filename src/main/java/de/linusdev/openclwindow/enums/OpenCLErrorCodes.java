@@ -145,7 +145,7 @@ public enum OpenCLErrorCodes {
 
     @Override
     public String toString() {
-        return "ERROR " + code + ": " + getDescription();
+        return name() + " " + code + ": " + getDescription();
     }
 
     /**

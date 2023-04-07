@@ -19,18 +19,16 @@ package de.linusdev.openclwindow.types;
 import de.linusdev.openclwindow.structs.StructureInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
+/**
+ * 3 Component float vector. Has the same {@link #getRequiredSize()} as a {@link BBFloat4}.
+ */
+@SuppressWarnings("UnusedReturnValue")
+public class BBFloat3 extends BBFloatN {
 
-public class Float2 extends FloatN {
+    public static StructureInfo INFO = new StructureInfo(16, false, 0, 12, 4);
 
-    public static StructureInfo INFO = new StructureInfo(8, false, 0, 8, 0);
-
-    public Float2(boolean allocateBuffer) {
-        super(2, allocateBuffer);
-    }
-
-    public Float2(@NotNull ByteBuffer buffer) {
-        super(buffer, 2);
+    public BBFloat3(boolean allocateBuffer) {
+        super(3, allocateBuffer);
     }
 
     public float x() {
@@ -41,13 +39,33 @@ public class Float2 extends FloatN {
         return buf.get(1);
     }
 
-    public @NotNull Float2 x(float f) {
+    public float z() {
+        return buf.get(2);
+    }
+
+    public @NotNull BBFloat3 x(float f) {
         buf.put(0, f);
+        modified();
         return this;
     }
 
-    public @NotNull Float2 y(float f) {
+    public @NotNull BBFloat3 y(float f) {
         buf.put(1, f);
+        modified();
+        return this;
+    }
+
+    public @NotNull BBFloat3 z(float f) {
+        buf.put(2, f);
+        modified();
+        return this;
+    }
+
+    public @NotNull BBFloat3 xyz(float x, float y, float z) {
+        buf.put(0, x);
+        buf.put(1, y);
+        buf.put(2, z);
+        modified();
         return this;
     }
 

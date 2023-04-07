@@ -17,28 +17,48 @@
 package de.linusdev.openclwindow.structs;
 
 import de.linusdev.openclwindow.buffer.BufferUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public abstract class Structure implements Sizeable {
 
+    protected Structure mostParentStructure;
     protected ByteBuffer byteBuf;
+    protected int offset;
+    protected boolean modified;
 
-    public void useBuffer(@NotNull ByteBuffer buffer) {
+    public void useBuffer(@NotNull Structure mostParentStructure, int offset) {
+        this.mostParentStructure = mostParentStructure;
+        this.offset = offset;
+        this.byteBuf = offset == 0 ?
+                mostParentStructure.getByteBuf().order(ByteOrder.nativeOrder()) :
+                mostParentStructure.getByteBuf().slice(offset, getRequiredSize()).order(ByteOrder.nativeOrder());
+    }
 
-        if(buffer.capacity() != getRequiredSize()) {
-            throw new IllegalArgumentException("buffer size must be " + getRequiredSize() + ", but is " + buffer.capacity());
-        }
+    public void claimBuffer(@NotNull ByteBuffer buffer) {
+        this.mostParentStructure = this;
+        this.offset = 0;
+        this.byteBuf = buffer.order(ByteOrder.nativeOrder());
+    }
 
-        byteBuf = buffer;
+    protected void modified(int offset, int size) {
+        mostParentStructure.onModification(offset, size);
+    }
+
+    @ApiStatus.OverrideOnly
+    protected void onModification(int offset, int size) {
+        modified = true;
     }
 
     /**
-     * Creates an 8 byte aligned direct byte buffer and calls {@link #useBuffer(ByteBuffer)}.
+     * Creates an 8 byte aligned direct byte buffer and calls {@link #useBuffer(Structure, int)}.
      */
     public void allocate() {
-        useBuffer(BufferUtils.createAlignedByteBuffer(getRequiredSize(), 8));
+        claimBuffer(BufferUtils.createAlignedByteBuffer(getRequiredSize(), 8));
+        useBuffer(this, 0);
     }
 
     /**
@@ -60,8 +80,16 @@ public abstract class Structure implements Sizeable {
      * Byte size of this {@link Structure}
      * @return byte size
      */
-    public int size() {
+    public int getSize() {
         return byteBuf.capacity();
+    }
+
+    /**
+     * Offset in the byte buffer of the most parental structure.
+     * @return offset in bytes
+     */
+    public int getOffset() {
+        return offset;
     }
 
     /**
@@ -70,5 +98,21 @@ public abstract class Structure implements Sizeable {
      */
     public ByteBuffer getByteBuf() {
         return byteBuf;
+    }
+
+    public boolean isModified() {
+        return modified;
+    }
+
+    public void unmodified() {
+        modified = false;
+    }
+
+    public int[] getModifications() {
+        throw new UnsupportedOperationException();
+    }
+
+    public boolean hasModifications() {
+        return false;
     }
 }

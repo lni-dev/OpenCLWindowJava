@@ -19,18 +19,12 @@ package de.linusdev.openclwindow.types;
 import de.linusdev.openclwindow.structs.StructureInfo;
 import org.jetbrains.annotations.NotNull;
 
-import java.nio.ByteBuffer;
+public class BBFloat2 extends BBFloatN {
 
-public class Float4 extends FloatN {
+    public static StructureInfo INFO = new StructureInfo(8, false, 0, 8, 0);
 
-    public static StructureInfo INFO = new StructureInfo(16, false, 0, 16, 0);
-
-    public Float4(boolean allocateBuffer) {
-        super(4, allocateBuffer);
-    }
-
-    public Float4(@NotNull ByteBuffer buffer) {
-        super(buffer, 4);
+    public BBFloat2(boolean allocateBuffer) {
+        super(2, allocateBuffer);
     }
 
     public float x() {
@@ -41,31 +35,15 @@ public class Float4 extends FloatN {
         return buf.get(1);
     }
 
-    public float z() {
-        return buf.get(2);
-    }
-
-    public float w() {
-        return buf.get(3);
-    }
-
-    public @NotNull Float4 x(float f) {
+    public @NotNull BBFloat2 x(float f) {
         buf.put(0, f);
+        modified();
         return this;
     }
 
-    public @NotNull Float4 y(float f) {
+    public @NotNull BBFloat2 y(float f) {
         buf.put(1, f);
-        return this;
-    }
-
-    public @NotNull Float4 z(float f) {
-        buf.put(2, f);
-        return this;
-    }
-
-    public @NotNull Float4 w(float f) {
-        buf.put(3, f);
+        modified();
         return this;
     }
 

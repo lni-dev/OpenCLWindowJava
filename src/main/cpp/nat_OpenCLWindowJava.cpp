@@ -154,9 +154,21 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setP
  * Method:    _setKernelArg
  * Signature: (JILjava/nio/ByteBuffer;I)I
  */
-JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg__JILjava_nio_ByteBuffer_2I
         (JNIEnv* env, jobject obj, jlong pointer, jint index, jobject buffer, jint bufSize) {
     auto* win = (OpenClWindowJava*) pointer;
     void* bufPointer = env->GetDirectBufferAddress(buffer);
     return win->setKernelArg(index, bufSize, bufPointer);
+}
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _setKernelArg
+ * Signature: (JIJ)I
+ */
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg__JIJ
+        (JNIEnv* env, jclass clazz, jlong pointer, jint index, jlong clBufferPointer) {
+    auto* win = (OpenClWindowJava*) pointer;
+    auto* buffer = (cl::Buffer*) clBufferPointer;
+    return win->setKernelArg(index, *buffer);
 }
