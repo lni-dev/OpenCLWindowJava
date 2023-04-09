@@ -24,7 +24,6 @@ public class VMath {
         for(int i = 0; i < left.getMemberCount(); i++)
             store.put(i, left.get(i) + right.get(i));
 
-        store.modified();
         return store;
     }
 
@@ -32,7 +31,6 @@ public class VMath {
         for(int i = 0; i < left.getMemberCount(); i++)
             store.put(i, left.get(i) - right.get(i));
 
-        store.modified();
         return store;
     }
 
@@ -40,7 +38,6 @@ public class VMath {
         for(int i = 0; i < left.getMemberCount(); i++)
             store.put(i, left.get(i) * right.get(i));
 
-        store.modified();
         return store;
     }
 
@@ -48,7 +45,6 @@ public class VMath {
         for(int i = 0; i < left.getMemberCount(); i++)
             store.put(i, left.get(i) / right.get(i));
 
-        store.modified();
         return store;
     }
 
@@ -56,7 +52,6 @@ public class VMath {
         for(int i = 0; i < toScale.getMemberCount(); i++)
             store.put(i, toScale.get(i) * factor);
 
-        store.modified();
         return store;
     }
 

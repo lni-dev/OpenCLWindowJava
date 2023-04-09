@@ -16,16 +16,15 @@
 
 package de.linusdev.openclwindow.nat;
 
-import de.linusdev.lutils.bitfield.IntBitfield;
+import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
+import de.linusdev.openclwindow.buffer.BufferAccess;
 import de.linusdev.openclwindow.enums.CLMemoryFlags;
+import de.linusdev.openclwindow.enums.GLFWValues;
 import de.linusdev.openclwindow.structs.CameraStruct;
 import de.linusdev.openclwindow.types.BBFloat3;
-import de.linusdev.openclwindow.types.VMath;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class OpenCLWindowJavaTest {
 
@@ -37,62 +36,58 @@ class OpenCLWindowJavaTest {
         cam.lookAtVector.xyz(0f, .5f, 0f);
         cam.distanceToScreen.set(1.f);
 
-        OpenCLWindowJava window = new OpenCLWindowJava();
+        OpenCLWindowJava window = new OpenCLWindowJava(info -> {
+            System.out.printf("FPS: %f. Millis: Frame: %f, Render: %f, Swap: %f, Memory: %f\n",
+                    info.getFPS(), info.getAverageMillisBetweenFrames(),
+                    info.getAverageMillisRenderTime(), info.getAverageMillisSwapBufferTime(),
+                    info.getAverageMillisAutoBufferTime());
+        });
         window.setTitle("Some Title");
         window.setProgramCodeOfResource("render.cl");
         window.setSize(800, 450);
-        //window.setBorderlessFullscreen();
+        window.setBorderlessFullscreen();
 
         window.setKeyListener((key, scancode, action, mods) -> {
             //scancodes: w: 17, a:30, s:31, d: 32
+
+            if(action == GLFWValues.Actions.GLFW_PRESS || action == GLFWValues.Actions.GLFW_REPEAT) {
+                if(scancode == 17) {
+                    cam.position.x(cam.position.x() + 0.05f);
+                    cam.position.modified();
+                } else if(scancode == 30) {
+                    cam.position.z(cam.position.z() + 0.05f);
+                    cam.position.modified();
+                }  else if(scancode == 31) {
+                    cam.position.x(cam.position.x() - 0.05f);
+                    cam.position.modified();
+                }  else if(scancode == 32) {
+                    cam.position.z(cam.position.z() - 0.05f);
+                    cam.position.modified();
+                }
+            }
+
+
         });
 
-        IntBitfield<CLMemoryFlags> flags = new IntBitfield<>();
-        flags.set(CLMemoryFlags.CL_MEM_READ_ONLY, CLMemoryFlags.CL_MEM_COPY_HOST_PTR,
-                CLMemoryFlags.CL_MEM_HOST_WRITE_ONLY);
-        GPUBuffer buf = new GPUBuffer(window, flags, cam.getByteBuf());
+        AutoUpdateGPUBuffer buf = new AutoUpdateGPUBuffer(window, cam,
+                BufferAccess.HOST_WRITE_KERNEL_READ, CLMemoryFlags.CL_MEM_COPY_HOST_PTR);
 
         window.setKernelArg(2, buf);
-
         window.show();
 
         BBFloat3 a = new BBFloat3(true);
-        a.x(0.5f);
+        a.x(0.01f);
 
-        double fpsChecksSum = 0d;
-        int fpsCheckCount = 0;
-        long lastFPSCheck = System.currentTimeMillis();
-        int frames = 0;
-        double fps;
         while (!window.checkIfWindowShouldClose()) {
             window.render();
             window.swapBuffer();
+            window.checkAutoUpdateBuffer();
 
-            if(cam.isModified()) {
-                cam.unmodified();
-                System.out.println("enqueueWriteBuffer");
-                buf.enqueueWriteBuffer(false, 0,
-                        cam.position.getByteBuf().capacity(), cam.position.getByteBuf(), false);
-            }
-
-
-            if(frames++ == 100) {
-                VMath.add(cam.position, a, cam.position);
-                fps = 1000.d / ((System.currentTimeMillis() - lastFPSCheck) / ((double) frames));
-                lastFPSCheck = System.currentTimeMillis();
-                frames = 0;
-
-                fpsChecksSum += fps;
-                fpsCheckCount++;
-                System.out.println(fps);
-            }
-
-            if(fpsCheckCount == 20) break;
+            //VMath.add(cam.position, a, cam.position);
+            //cam.position.modified();
         }
 
         buf.close();
         window.close();
-
-        System.out.println("Average FPS: " + (fpsChecksSum / fpsCheckCount));
     }
 }

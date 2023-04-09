@@ -17,7 +17,11 @@
 package de.linusdev.openclwindow.nat;
 
 import de.linusdev.lutils.bitfield.LongVolatileBitfield;
+import de.linusdev.lutils.llist.LLinkedList;
+import de.linusdev.openclwindow.FrameInfo;
 import de.linusdev.openclwindow.OpenCLException;
+import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
+import de.linusdev.openclwindow.buffer.HasGPUBuffer;
 import de.linusdev.openclwindow.enums.Modifiers;
 import de.linusdev.openclwindow.enums.OpenCLErrorCodes;
 import de.linusdev.openclwindow.nat.loader.LibraryLoader;
@@ -54,8 +58,15 @@ public class OpenCLWindowJava implements AutoCloseable {
     private KeyListener keyListener = null;
     private MouseListener mouseListener = null;
 
-    public OpenCLWindowJava() {
+    //other
+    private final @NotNull LLinkedList<AutoUpdateGPUBuffer> buffers;
+    private final @NotNull FrameInfo frameInfo;
+    private long frameStartTime = 0L;
+
+    public OpenCLWindowJava(@Nullable FrameInfo.UpdateListener listener) {
         objectPointer = _create();
+        this.buffers = new LLinkedList<>();
+        this.frameInfo = new FrameInfo(100, listener);
     }
 
     public void show() {
@@ -118,22 +129,37 @@ public class OpenCLWindowJava implements AutoCloseable {
             throw new OpenCLException(OpenCLErrorCodes.checkError(err));
     }
 
-    public void setKernelArg(int index, @NotNull GPUBuffer buffer) {
-        int err = _setKernelArg(objectPointer, index, buffer.getPointer());
+    public void setKernelArg(int index, @NotNull HasGPUBuffer buffer) {
+        int err = _setKernelArg(objectPointer, index, buffer.getGPUBuffer().getPointer());
         if(err != 0)
             throw new OpenCLException(OpenCLErrorCodes.checkError(err));
     }
 
     public boolean checkIfWindowShouldClose() {
+        long currentTime = System.currentTimeMillis();
+        if(frameStartTime != 0)
+            frameInfo.submitFrame(currentTime - frameStartTime);
+        frameStartTime = currentTime;
+
         return _checkIfWindowShouldClose(objectPointer);
     }
 
-    public int render() {
-        return _render(objectPointer);
+    public void render() {
+
+        long startTime = System.currentTimeMillis();
+
+        int err = _render(objectPointer);
+        if(err != 0)
+            throw new OpenCLException(OpenCLErrorCodes.checkError(err));
+
+        frameInfo.submitRenderTime(System.currentTimeMillis() - startTime);
+
     }
 
     public void swapBuffer() {
+        long startTime = System.currentTimeMillis();
         _swapBuffer(objectPointer);
+        frameInfo.submitSwapBufferTime(System.currentTimeMillis() - startTime);
     }
 
     @Override
@@ -142,11 +168,28 @@ public class OpenCLWindowJava implements AutoCloseable {
         _delete(objectPointer);
     }
 
+    //auto update buffer
+    public void addAutoUpdateBuffer(@NotNull AutoUpdateGPUBuffer buffer) {
+        buffers.add(buffer);
+    }
+
+    public void removeAutoUpdateBuffer(@NotNull AutoUpdateGPUBuffer buffer) {
+        buffers.remove(buffer);
+    }
+
+    public void checkAutoUpdateBuffer() {
+        long startTime = System.currentTimeMillis();
+        for(AutoUpdateGPUBuffer buffer : buffers)
+            buffer.check();
+        frameInfo.submitAutoBufferTime(System.currentTimeMillis() - startTime);
+    }
+
+   //package-private
     long getPointer() {
         return objectPointer;
     }
 
-
+    //native
     private native long _create();
     private native void _show(long pointer);
     private static native boolean _checkIfWindowShouldClose(long pointer);

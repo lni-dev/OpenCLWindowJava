@@ -32,7 +32,7 @@ public class CameraStruct extends ComplexStructure {
     public final @NotNull BBFloat1 distanceToScreen = new BBFloat1(false);
 
     public CameraStruct(boolean allocateBuffer) {
-        super();
+        super(true);
         init(allocateBuffer, position, lookAtVector, distanceToScreen);
     }
 

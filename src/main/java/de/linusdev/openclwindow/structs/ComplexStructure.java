@@ -17,16 +17,21 @@
 package de.linusdev.openclwindow.structs;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ComplexStructure extends Structure {
 
     protected @NotNull Structure [] items;
 
+    protected final boolean trackModifications;
+    protected final int modificationSplitOffset = 128;
+    protected ModificationInfo modInfo = null;
 
-    public ComplexStructure() {
-
+    public ComplexStructure(boolean trackModifications) {
+        this.trackModifications = trackModifications;
     }
 
     public void init(boolean allocateBuffer, @NotNull Structure @NotNull ... items) {
@@ -39,8 +44,28 @@ public abstract class ComplexStructure extends Structure {
     protected void onModification(int offset, int size) {
         super.onModification(offset, size);
 
+        if(trackModifications) {
+            modificationLock.lock();
 
+            int offsetEnd = offset + size;
 
+            if(modInfo == null) {
+               modInfo = new ModificationInfo(offset, offsetEnd);
+            } else {
+                modInfo.add(offset, offsetEnd, modificationSplitOffset, null);
+                if(modInfo.previous != null)
+                    modInfo = modInfo.previous;
+            }
+
+            modificationLock.unlock();
+        }
+    }
+
+    @Override
+    public ModificationInfo getFirstModificationInfo(boolean clear) {
+        ModificationInfo ret = modInfo;
+        modInfo = null;
+        return ret;
     }
 
     @Override

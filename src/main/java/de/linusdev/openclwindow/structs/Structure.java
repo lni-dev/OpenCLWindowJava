@@ -22,13 +22,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class Structure implements Sizeable {
 
     protected Structure mostParentStructure;
     protected ByteBuffer byteBuf;
     protected int offset;
-    protected boolean modified;
+    protected volatile boolean modified;
+    protected ReentrantLock modificationLock;
 
     public void useBuffer(@NotNull Structure mostParentStructure, int offset) {
         this.mostParentStructure = mostParentStructure;
@@ -36,15 +39,17 @@ public abstract class Structure implements Sizeable {
         this.byteBuf = offset == 0 ?
                 mostParentStructure.getByteBuf().order(ByteOrder.nativeOrder()) :
                 mostParentStructure.getByteBuf().slice(offset, getRequiredSize()).order(ByteOrder.nativeOrder());
+        this.modificationLock = mostParentStructure.modificationLock;
     }
 
     public void claimBuffer(@NotNull ByteBuffer buffer) {
         this.mostParentStructure = this;
         this.offset = 0;
         this.byteBuf = buffer.order(ByteOrder.nativeOrder());
+        this.modificationLock = new ReentrantLock();
     }
 
-    protected void modified(int offset, int size) {
+    public void modified(int offset, int size) {
         mostParentStructure.onModification(offset, size);
     }
 
@@ -108,11 +113,19 @@ public abstract class Structure implements Sizeable {
         modified = false;
     }
 
-    public int[] getModifications() {
+    public ModificationInfo getFirstModificationInfo(boolean clear) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean hasModifications() {
+    public boolean hasModificationsInfo() {
         return false;
+    }
+
+    public void acquireModificationLock() {
+        modificationLock.lock();
+    }
+
+    public void releaseModificationLock() {
+        modificationLock.unlock();
     }
 }

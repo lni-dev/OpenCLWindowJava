@@ -17,6 +17,7 @@
 package de.linusdev.openclwindow.nat;
 
 import de.linusdev.openclwindow.OpenCLException;
+import de.linusdev.openclwindow.buffer.HasGPUBuffer;
 import de.linusdev.openclwindow.enums.CLMemoryFlags;
 import de.linusdev.openclwindow.enums.OpenCLErrorCodes;
 import de.linusdev.openclwindow.buffer.BufferUtils;
@@ -26,15 +27,15 @@ import org.jetbrains.annotations.NotNull;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class GPUBuffer implements AutoCloseable {
+public class GPUBuffer implements AutoCloseable, HasGPUBuffer {
 
     protected final long pointer;
     protected @NotNull OpenCLWindowJava window;
 
-    public GPUBuffer(@NotNull OpenCLWindowJava win, @NotNull IntBitfield<CLMemoryFlags> clMemFlags, @NotNull ByteBuffer data) {
+    public GPUBuffer(@NotNull OpenCLWindowJava win, int clMemFlags, @NotNull ByteBuffer data) {
         this.window = win;
 
-        ByteBuffer createRet = _create(win.getPointer(), clMemFlags.getValue(), data.capacity(), BufferUtils.getHeapAddress(data));
+        ByteBuffer createRet = _create(win.getPointer(), clMemFlags, data.capacity(), BufferUtils.getHeapAddress(data));
         createRet.order(ByteOrder.nativeOrder());
 
         this.pointer = createRet.getLong(8);
@@ -47,6 +48,10 @@ public class GPUBuffer implements AutoCloseable {
             throw new OpenCLException(OpenCLErrorCodes.checkError(err));
         }
 
+    }
+
+    public GPUBuffer(@NotNull OpenCLWindowJava win, @NotNull IntBitfield<CLMemoryFlags> clMemFlags, @NotNull ByteBuffer data) {
+       this(win, clMemFlags.getValue(), data);
     }
 
     public void enqueueWriteBuffer(boolean blocking, int offset, int size, @NotNull ByteBuffer data, boolean addOffsetToBufferAddress) {
@@ -73,6 +78,8 @@ public class GPUBuffer implements AutoCloseable {
     protected static native void _deleteReturnStruct(long pointer);
 
 
-
-
+    @Override
+    public @NotNull GPUBuffer getGPUBuffer() {
+        return this;
+    }
 }
