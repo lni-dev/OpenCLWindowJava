@@ -24,15 +24,21 @@ import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
 import de.linusdev.openclwindow.buffer.HasGPUBuffer;
 import de.linusdev.openclwindow.enums.Modifiers;
 import de.linusdev.openclwindow.enums.OpenCLErrorCodes;
-import de.linusdev.openclwindow.nat.loader.LibraryLoader;
+import de.linusdev.openclwindow.input.InputManager;
+import de.linusdev.openclwindow.listener.CharListener;
 import de.linusdev.openclwindow.listener.KeyListener;
 import de.linusdev.openclwindow.listener.MouseListener;
+import de.linusdev.openclwindow.nat.loader.LibraryLoader;
 import de.linusdev.openclwindow.structs.Structure;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class OpenCLWindowJava implements AutoCloseable {
 
@@ -55,18 +61,22 @@ public class OpenCLWindowJava implements AutoCloseable {
 
     //listener
     private final LongVolatileBitfield<Modifiers> lastMods = new LongVolatileBitfield<>();
-    private KeyListener keyListener = null;
+    private List<KeyListener> keyListeners = new LLinkedList<>();
     private MouseListener mouseListener = null;
+    private List<CharListener> charListeners = new LLinkedList<>();
 
     //other
     private final @NotNull LLinkedList<AutoUpdateGPUBuffer> buffers;
     private final @NotNull FrameInfo frameInfo;
     private long frameStartTime = 0L;
 
-    public OpenCLWindowJava(@Nullable FrameInfo.UpdateListener listener) {
+    private final @NotNull InputManager inputManager;
+
+    public OpenCLWindowJava() {
         objectPointer = _create();
         this.buffers = new LLinkedList<>();
-        this.frameInfo = new FrameInfo(100, listener);
+        this.frameInfo = new FrameInfo(100, null);
+        this.inputManager = new InputManager(this);
     }
 
     public void show() {
@@ -115,12 +125,28 @@ public class OpenCLWindowJava implements AutoCloseable {
         }
     }
 
-    public void setKeyListener(@Nullable KeyListener keyListener) {
-        this.keyListener = keyListener;
+    public void setFrameListener(@Nullable FrameInfo.UpdateListener listener) {
+        frameInfo.setListener(listener);
+    }
+
+    public void addKeyListener(@NotNull KeyListener keyListener) {
+        this.keyListeners.add(keyListener);
+    }
+
+    public void removeKeyListener(@NotNull KeyListener listener) {
+        keyListeners.remove(listener);
     }
 
     public void setMouseListener(@Nullable MouseListener mouseListener) {
         this.mouseListener = mouseListener;
+    }
+
+    public void addCharListener(@NotNull CharListener listener) {
+        this.charListeners.add(listener);
+    }
+
+    public void removeCharListener(@NotNull CharListener listener) {
+        this.charListeners.remove(listener);
     }
 
     public void setKernelArg(int index, @NotNull Structure struct) {
@@ -184,7 +210,13 @@ public class OpenCLWindowJava implements AutoCloseable {
         frameInfo.submitAutoBufferTime(System.currentTimeMillis() - startTime);
     }
 
-   //package-private
+    //getter
+
+    public @NotNull InputManager getInputManager() {
+        return inputManager;
+    }
+
+    //package-private
     long getPointer() {
         return objectPointer;
     }
@@ -210,8 +242,8 @@ public class OpenCLWindowJava implements AutoCloseable {
 
     private void onKey(int key, int scancode, int action, int mods) {
         lastMods.replaceWith(mods);
-        if(keyListener != null)
-            keyListener.onKey(key, scancode, action, lastMods);
+        for(KeyListener listener : keyListeners)
+            listener.onKey(key, scancode, action, lastMods);
     }
 
     private void onMouseCursor(double xpos, double ypos) {
@@ -223,5 +255,13 @@ public class OpenCLWindowJava implements AutoCloseable {
         lastMods.replaceWith(mods);
         if(mouseListener != null)
             mouseListener.onMouseButton(button, action, lastMods);
+    }
+
+    private void onChar(int codepoint) {
+        System.out.println(codepoint);
+
+        char[] chars = Character.toChars(codepoint);
+        for(CharListener listener : charListeners)
+            listener.onChar(chars);
     }
 }

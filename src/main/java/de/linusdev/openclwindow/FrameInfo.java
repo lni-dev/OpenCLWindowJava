@@ -21,7 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class FrameInfo {
     private final int averageOverFrames;
-    private final @Nullable UpdateListener listener;
+    private @Nullable UpdateListener listener;
 
     private volatile double averageMillisBetweenFrames;
     private volatile double averageMillisRenderTime;
@@ -40,6 +40,9 @@ public class FrameInfo {
         this.listener = listener;
     }
 
+    public void setListener(@Nullable UpdateListener listener) {
+        this.listener = listener;
+    }
 
     public void submitFrame(long millis) {
         frameMillisSum += millis;

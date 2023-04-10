@@ -20,11 +20,15 @@ import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
 import de.linusdev.openclwindow.buffer.BufferAccess;
 import de.linusdev.openclwindow.enums.CLMemoryFlags;
 import de.linusdev.openclwindow.enums.GLFWValues;
+import de.linusdev.openclwindow.input.InputManager;
+import de.linusdev.openclwindow.input.TextInput;
 import de.linusdev.openclwindow.structs.CameraStruct;
 import de.linusdev.openclwindow.types.BBFloat3;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 class OpenCLWindowJavaTest {
 
@@ -36,18 +40,19 @@ class OpenCLWindowJavaTest {
         cam.lookAtVector.xyz(0f, .5f, 0f);
         cam.distanceToScreen.set(1.f);
 
-        OpenCLWindowJava window = new OpenCLWindowJava(info -> {
-            System.out.printf("FPS: %f. Millis: Frame: %f, Render: %f, Swap: %f, Memory: %f\n",
+        OpenCLWindowJava window = new OpenCLWindowJava();
+        window.setFrameListener(info -> {
+            /*System.out.printf("FPS: %f. Millis: Frame: %f, Render: %f, Swap: %f, Memory: %f\n",
                     info.getFPS(), info.getAverageMillisBetweenFrames(),
                     info.getAverageMillisRenderTime(), info.getAverageMillisSwapBufferTime(),
-                    info.getAverageMillisAutoBufferTime());
+                    info.getAverageMillisAutoBufferTime());*/
         });
         window.setTitle("Some Title");
         window.setProgramCodeOfResource("render.cl");
         window.setSize(800, 450);
-        window.setBorderlessFullscreen();
+        //window.setBorderlessFullscreen();
 
-        window.setKeyListener((key, scancode, action, mods) -> {
+        window.addKeyListener((key, scancode, action, mods) -> {
             //scancodes: w: 17, a:30, s:31, d: 32
 
             if(action == GLFWValues.Actions.GLFW_PRESS || action == GLFWValues.Actions.GLFW_REPEAT) {
@@ -78,10 +83,52 @@ class OpenCLWindowJavaTest {
         BBFloat3 a = new BBFloat3(true);
         a.x(0.01f);
 
+        TextInput input = new TextInput(window, new TextInput.Listener() {
+            @Override
+            public void onAdd(@NotNull StringBuffer current, char @NotNull [] added) {
+                System.out.println("current: "+current+", added: " + Arrays.toString(added));
+            }
+
+            @Override
+            public void onRemove(@NotNull StringBuffer current, char removed) {
+                System.out.println("current: "+current);
+            }
+
+            @Override
+            public void onEnter(@NotNull StringBuffer current) {
+                System.out.println(current);
+                current.setLength(0);
+            }
+        });
+
+        input.start();
+
+        InputManager im = window.getInputManager();
         while (!window.checkIfWindowShouldClose()) {
             window.render();
             window.swapBuffer();
             window.checkAutoUpdateBuffer();
+
+            //scancodes: w: 17, a:30, s:31, d: 32
+            if(im.isPressed(17)) {
+                cam.position.x(cam.position.x() + 0.05f);
+                cam.position.modified();
+            }
+
+            if (im.isPressed(30)) {
+                cam.position.z(cam.position.z() + 0.05f);
+                cam.position.modified();
+            }
+
+            if (im.isPressed(31)) {
+                cam.position.x(cam.position.x() - 0.05f);
+                cam.position.modified();
+            }
+
+            if (im.isPressed(32)) {
+                cam.position.z(cam.position.z() - 0.05f);
+                cam.position.modified();
+            }
 
             //VMath.add(cam.position, a, cam.position);
             //cam.position.modified();
@@ -89,5 +136,7 @@ class OpenCLWindowJavaTest {
 
         buf.close();
         window.close();
+
+        System.out.println(input.getString());
     }
 }

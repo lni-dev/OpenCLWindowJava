@@ -18,12 +18,11 @@
 #include <jni.h>
 
 #include "OpenClWindow.h"
-#include "KeyListener.h"
-#include "MouseListener.h"
+#include "Listeners.h"
 
 namespace linusdev::java {
 
-    class OpenClWindowJava : public OpenClWindow, KeyListener, MouseListener {
+    class OpenClWindowJava : public OpenClWindow, KeyListener, MouseListener, CharListener {
 
     private:
 
@@ -32,12 +31,15 @@ namespace linusdev::java {
         jmethodID onKeyMethodId = nullptr;
         jmethodID onCursorMethodId = nullptr;
         jmethodID onMouseButtonMethodId = nullptr;
+        jmethodID onCharMethodId = nullptr;
 
         void onKey(int key, int scancode, int action, int mods) override;
 
         void onMouseCursor(double xpos, double ypos) override;
 
         void onMouseButton(int button, int action, int mods) override;
+
+        void onChar(unsigned int codepoint) override;
 
     public:
         OpenClWindowJava(JNIEnv* env, jobject obj);

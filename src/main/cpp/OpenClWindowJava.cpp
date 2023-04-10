@@ -25,9 +25,11 @@ namespace linusdev::java {
         this->onKeyMethodId = env->GetMethodID(clazz, "onKey", "(IIII)V");
         this->onCursorMethodId = env->GetMethodID(clazz, "onMouseCursor", "(DD)V");
         this->onMouseButtonMethodId = env->GetMethodID(clazz, "onMouseButton", "(III)V");
+        this->onCharMethodId = env->GetMethodID(clazz, "onChar", "(I)V");
 
         setKeyListener(this);
         setMouseListener(this);
+        setCharListener(this);
     }
 
     void OpenClWindowJava::onKey(int key, int scancode, int action, int mods) {
@@ -42,8 +44,14 @@ namespace linusdev::java {
         env->CallVoidMethod(globalJavaRef, onMouseButtonMethodId, button, action, mods);
     }
 
+    void OpenClWindowJava::onChar(unsigned int codepoint) {
+        env->CallVoidMethod(globalJavaRef, onCharMethodId, codepoint);
+    }
+
     OpenClWindowJava::~OpenClWindowJava() {
         env->DeleteGlobalRef(globalJavaRef);
     }
+
+
 
 } // java
