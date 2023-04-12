@@ -2,8 +2,6 @@
 
 // Copyright (c) 2023 Linus Andera
 
-#pragma OPENCL EXTENSION cl_khr_extended_versioning : enable
-
 #define int2(X, Y) ((int2)(X, Y))
 #define int3(X, Y, Z) ((int3)(X, Y, Z))
 #define int4(X, Y, Z, W) ((int4)(X, Y, Z, W))
@@ -156,9 +154,9 @@ float4 mainImage(float2 uv, camera cam) {
     
     if(hit.id != NO_HIT_ID){
         if(hit.id == GROUND_ID){
-            col.rgb = float3(.6, 0.4, 0.25);
+            col.xyz = float3(.6, 0.4, 0.25);
         }else if(hit.id == BOX_1_ID){
-            col.rgb = float3(0.9, 0.9, 0.2);
+            col.xyz = float3(0.9, 0.9, 0.2);
         }
         
         float3 normal = getNormal(hit.pos);
@@ -185,12 +183,12 @@ float4 mainImage(float2 uv, camera cam) {
             
         }
         
-        col.rgb *= lightColor;
+        col.xyz *= lightColor;
     }else {
-        col.rgb = float3(0.3, 0.6, 0.8)*3.f;
+        col.xyz = float3(0.3, 0.6, 0.8)*3.f;
     }
 
-    //col.rgb = float3(length(uv));
+    //col.xyz = float3(length(uv));
 
     return col;
 }
@@ -200,7 +198,7 @@ float4 mainImage(float2 uv, camera cam) {
 __kernel void render(
     __write_only image2d_t img,
     const int2 screenSize,
-    __global __read_only camera* cam
+    __global camera* cam
     //__read_only float3 cameraPos
     ) 
 {
