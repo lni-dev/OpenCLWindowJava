@@ -175,3 +175,30 @@ JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setK
     auto* buffer = (cl::Buffer*) clBufferPointer;
     return win->setKernelArg(index, *buffer);
 }
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _glfwSetInputMode
+ * Signature: (JII)V
+ */
+JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1glfwSetInputMode
+        (JNIEnv* env, jclass clazz, jlong pointer, jint mode, jint value) {
+    auto* win = (OpenClWindowJava*) pointer;
+    glfwSetInputMode(win->getGLFWWindow(), mode, value);
+}
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _glfwRawMouseMotionSupported
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava_isRawMouseMotionSupported
+        (JNIEnv* env, jclass clazz) {
+    return glfwRawMouseMotionSupported() == GLFW_TRUE ? JNI_TRUE : JNI_FALSE;
+}
+
+JNIEXPORT jstring JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava_getKeyName
+        (JNIEnv* env, jclass clazz, jint key, jint scancode) {
+    const char* name = glfwGetKeyName(key, scancode);
+    return env->NewStringUTF(name);
+}

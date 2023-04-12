@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 class OpenCLWindowJavaTest {
 
@@ -86,12 +85,12 @@ class OpenCLWindowJavaTest {
         TextInput input = new TextInput(window, new TextInput.Listener() {
             @Override
             public void onAdd(@NotNull StringBuffer current, char @NotNull [] added) {
-                System.out.println("current: "+current+", added: " + Arrays.toString(added));
+                //System.out.println("current: "+current+", added: " + Arrays.toString(added));
             }
 
             @Override
             public void onRemove(@NotNull StringBuffer current, char removed) {
-                System.out.println("current: "+current);
+                //System.out.println("current: "+current);
             }
 
             @Override

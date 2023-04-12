@@ -111,6 +111,30 @@ JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setK
 JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setKernelArg__JIJ
         (JNIEnv *, jclass, jlong, jint, jlong);
 
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _glfwSetInputMode
+ * Signature: (JII)V
+ */
+JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1glfwSetInputMode
+        (JNIEnv *, jclass, jlong, jint, jint);
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    isRawMouseMotionSupported
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava_isRawMouseMotionSupported
+        (JNIEnv *, jclass);
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    getKeyName
+ * Signature: (II)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava_getKeyName
+        (JNIEnv *, jclass, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

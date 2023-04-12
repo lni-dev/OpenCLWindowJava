@@ -319,5 +319,29 @@ public interface GLFWValues {
         int GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER = 5;
         int GLFW_GAMEPAD_AXIS_LAST = GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER;
    }
+
+
+   interface InputMode {
+       interface Mode {
+           int GLFW_CURSOR = 0x00033001;
+           int GLFW_STICKY_KEYS = 0x00033002;
+           int GLFW_STICKY_MOUSE_BUTTONS = 0x00033003;
+           int GLFW_LOCK_KEY_MODS = 0x00033004;
+           int GLFW_RAW_MOUSE_MOTION = 0x00033005;
+       }
+
+       interface Value {
+           int GLFW_CURSOR_NORMAL = 0x00034001;
+           int GLFW_CURSOR_HIDDEN = 0x00034002;
+           int GLFW_CURSOR_DISABLED = 0x00034003;
+           int GLFW_CURSOR_CAPTURED = 0x00034004;
+
+           int GLFW_TRUE = 1;
+           int GLFW_FALSE = 0;
+       };
+   }
+
+
+
     
 }

@@ -22,8 +22,8 @@ public class ModificationInfo {
     public volatile int startOffset;
     public volatile int endOffset;
 
-    public volatile ModificationInfo next;
-    public volatile ModificationInfo previous;
+    public volatile ModificationInfo next = null;
+    public volatile ModificationInfo previous = null;
 
     public ModificationInfo(int startOffset, int endOffset) {
         this.startOffset = startOffset;
@@ -47,7 +47,7 @@ public class ModificationInfo {
 
                 return previous.add(startOffset, endOffset, split, this);
             }
-        } else if(startOffset + split > this.endOffset) { //this < new
+        } else if(startOffset - split > this.endOffset) { //this < new
             if(next == null) {
                 next = new ModificationInfo(startOffset, endOffset);
                 return next;
@@ -69,13 +69,13 @@ public class ModificationInfo {
             this.endOffset = Math.max(endOffset, this.endOffset);
 
             //check if this can be combined with prev or next
-            if(previous.endOffset + split < this.startOffset) {
+            if(previous != null && previous.endOffset + split < this.startOffset) {
                 this.startOffset = previous.startOffset;
                 this.previous = previous.previous;
                 this.previous.next = this;
             }
 
-            if(this.endOffset + split > next.startOffset) {
+            if(next != null && this.endOffset + split > next.startOffset) {
                 this.endOffset = next.endOffset;
                 this.next = next.next;
                 this.next.previous = this;

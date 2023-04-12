@@ -22,6 +22,7 @@ import de.linusdev.openclwindow.FrameInfo;
 import de.linusdev.openclwindow.OpenCLException;
 import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
 import de.linusdev.openclwindow.buffer.HasGPUBuffer;
+import de.linusdev.openclwindow.enums.GLFWValues;
 import de.linusdev.openclwindow.enums.Modifiers;
 import de.linusdev.openclwindow.enums.OpenCLErrorCodes;
 import de.linusdev.openclwindow.input.InputManager;
@@ -30,6 +31,7 @@ import de.linusdev.openclwindow.listener.KeyListener;
 import de.linusdev.openclwindow.listener.MouseListener;
 import de.linusdev.openclwindow.nat.loader.LibraryLoader;
 import de.linusdev.openclwindow.structs.Structure;
+import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -188,6 +190,13 @@ public class OpenCLWindowJava implements AutoCloseable {
         frameInfo.submitSwapBufferTime(System.currentTimeMillis() - startTime);
     }
 
+    public void setInputMode(
+            @MagicConstant(valuesFromClass = GLFWValues.InputMode.Mode.class) int mode,
+            @MagicConstant(valuesFromClass = GLFWValues.InputMode.Value.class) int value
+    ) {
+        _glfwSetInputMode(objectPointer, mode, value);
+    }
+
     @Override
     public void close() {
         _destroy(objectPointer);
@@ -235,6 +244,11 @@ public class OpenCLWindowJava implements AutoCloseable {
     private native void _setProgramCode(long pointer, String code, String options);
     private native int _setKernelArg(long pointer, int index, ByteBuffer buffer, int bufSize);
     private static native int _setKernelArg(long pointer, int index, long clBufferPointer);
+    private static native void _glfwSetInputMode(long pointer, @MagicConstant(valuesFromClass = GLFWValues.InputMode.Mode.class) int mode, @MagicConstant(valuesFromClass = GLFWValues.InputMode.Value.class) int value);
+
+    //public native
+    public static native boolean isRawMouseMotionSupported();
+    public static native String getKeyName(int key, int scancode);
 
     /*
      * Methods, that should be called natively only:
@@ -258,9 +272,7 @@ public class OpenCLWindowJava implements AutoCloseable {
     }
 
     private void onChar(int codepoint) {
-        System.out.println(codepoint);
-
-        char[] chars = Character.toChars(codepoint);
+                char[] chars = Character.toChars(codepoint);
         for(CharListener listener : charListeners)
             listener.onChar(chars);
     }
