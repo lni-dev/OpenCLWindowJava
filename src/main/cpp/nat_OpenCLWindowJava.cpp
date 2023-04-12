@@ -139,14 +139,17 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setB
 /*
  * Class:     de_linusdev_oclwindow_nat_OpenCLWindowJava
  * Method:    _setProgramCode
- * Signature: (JLjava/lang/String;)V
+ * Signature: (JLjava/lang/String;JLjava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setProgramCode
-        (JNIEnv* env, jobject obj, jlong pointer, jstring code) {
+        (JNIEnv* env, jobject obj, jlong pointer, jstring code, jstring options) {
     auto* win = (OpenClWindowJava*) pointer;
     const char* cStr = env->GetStringUTFChars(code, nullptr);
-    win->setProgramCode(cStr);
+    const char* oStr = options == NULL ? NULL : env->GetStringUTFChars(options, nullptr);
+    win->setProgramCode(cStr, oStr);
     env->ReleaseStringUTFChars(code, cStr);
+    if(options != NULL)
+        env->ReleaseStringUTFChars(code, oStr);
 }
 
 /*

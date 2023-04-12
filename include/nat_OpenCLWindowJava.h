@@ -90,10 +90,10 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setB
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
  * Method:    _setProgramCode
- * Signature: (JLjava/lang/String;)V
+ * Signature: (JLjava/lang/String;Ljava/lang/String;)V
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setProgramCode
-        (JNIEnv *, jobject, jlong, jstring);
+        (JNIEnv *, jobject, jlong, jstring, jstring);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava

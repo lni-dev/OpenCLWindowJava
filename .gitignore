@@ -8,3 +8,4 @@
 /libglfw3.a
 /libOpenCLWindow.a
 /libOpenCLWindowJava.jnilib
+*.log
