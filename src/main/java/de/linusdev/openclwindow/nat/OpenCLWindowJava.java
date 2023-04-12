@@ -95,11 +95,11 @@ public class OpenCLWindowJava implements AutoCloseable {
         _setBorderlessFullscreen(objectPointer);
     }
 
-    public void setProgramCode(@NotNull String code) {
-        _setProgramCode(objectPointer, code);
+    public void setProgramCode(@NotNull String code, @Nullable String options) {
+        _setProgramCode(objectPointer, code, options);
     }
 
-    public void setProgramCodeOfResource(@NotNull String resourcePath) throws IOException {
+    public void setProgramCodeOfResource(@NotNull String resourcePath, @Nullable String options) throws IOException {
         StackWalker stackWalker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
         Class<?> callerClass = stackWalker.getCallerClass();
 
@@ -121,7 +121,7 @@ public class OpenCLWindowJava implements AutoCloseable {
                 sb.append(buf, 0, readCount);
             }
 
-            setProgramCode(sb.toString());
+            setProgramCode(sb.toString(), options);
         }
     }
 
@@ -232,7 +232,7 @@ public class OpenCLWindowJava implements AutoCloseable {
     private native void _setTitle(long pointer, String string);
     private native void _setSize(long pointer, int width, int height);
     private native void _setBorderlessFullscreen(long pointer);
-    private native void _setProgramCode(long pointer, String string);
+    private native void _setProgramCode(long pointer, String code, String options);
     private native int _setKernelArg(long pointer, int index, ByteBuffer buffer, int bufSize);
     private static native int _setKernelArg(long pointer, int index, long clBufferPointer);
 

@@ -48,7 +48,7 @@ class OpenCLWindowJavaTest {
                     info.getAverageMillisAutoBufferTime());*/
         });
         window.setTitle("Some Title");
-        window.setProgramCodeOfResource("render.cl");
+        window.setProgramCodeOfResource("render.cl", "-cl-std=CL2.0");
         window.setSize(800, 450);
         //window.setBorderlessFullscreen();
 

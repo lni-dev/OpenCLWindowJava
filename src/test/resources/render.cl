@@ -2,14 +2,19 @@
 
 // Copyright (c) 2023 Linus Andera
 
+#pragma OPENCL EXTENSION cl_khr_extended_versioning : enable
 
 #define int2(X, Y) ((int2)(X, Y))
 #define int3(X, Y, Z) ((int3)(X, Y, Z))
 #define int4(X, Y, Z, W) ((int4)(X, Y, Z, W))
 
-#define float2(...) ((float2)(__VA_ARGS__))
-#define float3(...) ((float3)(__VA_ARGS__))
-#define float4(...) ((float4)(__VA_ARGS__))
+#define toFloat2(X) ((float2)(X))
+#define toFloat3(X) ((float3)(X))
+#define toFloat4(X) ((float4)(X))
+
+#define float2(X, Y) ((float2)(X, Y))
+#define float3(X, Y, Z) ((float3)(X, Y, Z))
+#define float4(X, Y, Z, W) ((float4)(X, Y, Z, W))
 
 /**
  * returns biggest component of any 3-component type
@@ -52,7 +57,7 @@ float sdfBox(float3 pos, float3 center, float3 size) {
     pos -= center;
     float3 d = absolute(pos) - size*.5f;
     float m = (vmax(d));
-    return max(length(min(sign(d) + float3(1.f), 1.f) * d), absolute(m)) * sign(m);
+    return max(length(min(sign(d) + toFloat3(1.f), 1.f) * d), absolute(m)) * sign(m);
 }
 
 inline float sdfSphere(float3 pos, float3 center, float radius){
@@ -65,7 +70,7 @@ float getDistance(float3 pos, uint* hitId) {
     float dis = RENDER_DISTANCE;
     
     float disYPlane = absolute(pos.y+0.1)-0.1;
-    float disBox1 = sdfBox(pos, float3(1., 1.5, 0.), float3(1.));
+    float disBox1 = sdfBox(pos, float3(1., 1.5, 0.), toFloat3(1.));
     
     mmin(dis, disYPlane, hitId, GROUND_ID, 0u);
     mmin(dis, disBox1, hitId, BOX_1_ID, 0u);
@@ -103,7 +108,7 @@ typedef struct Light{
 }Light;
 
 Light lights[1] = { 
-  (Light){float3(0., 13., 0.), float3(3., 3., 3.), float3(0.0), 0.0}
+  (Light){float3(0., 13., 0.), float3(3., 3., 3.), toFloat3(0.0), 0.0}
 };
 
 Hit rayMarch(Ray r){
@@ -130,12 +135,12 @@ Hit rayMarch(Ray r){
 }
 
 float4 mainImage(float2 uv, camera cam) {
-    float4 col = float4(0.0);
+    float4 col = toFloat4(0.0);
 
     //read Vars
-    float4 camPosition = float4(1.f); //xyz = pos; w = distance to screen
+    float4 camPosition = toFloat4(1.f); //xyz = pos; w = distance to screen
     camPosition.xyz = cam.position;
-    float4 viewDirection = float4(1.f);
+    float4 viewDirection = toFloat4(1.f);
     viewDirection.xyz = cam.lookAtVector - camPosition.xyz;
     viewDirection.xyz = normalize(viewDirection.xyz);
     
@@ -157,7 +162,7 @@ float4 mainImage(float2 uv, camera cam) {
         }
         
         float3 normal = getNormal(hit.pos);
-        float3 lightColor = float3(0.0);
+        float3 lightColor = toFloat3(0.0);
         
         for(int i = 0; i < 1; i++){
             Light light = lights[i];
