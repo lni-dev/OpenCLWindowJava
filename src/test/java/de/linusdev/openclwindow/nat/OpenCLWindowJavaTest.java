@@ -16,12 +16,15 @@
 
 package de.linusdev.openclwindow.nat;
 
+import de.linusdev.lutils.bitfield.LongVolatileBitfield;
 import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
 import de.linusdev.openclwindow.buffer.BufferAccess;
 import de.linusdev.openclwindow.enums.CLMemoryFlags;
 import de.linusdev.openclwindow.enums.GLFWValues;
+import de.linusdev.openclwindow.enums.Modifiers;
 import de.linusdev.openclwindow.input.InputManager;
 import de.linusdev.openclwindow.input.TextInput;
+import de.linusdev.openclwindow.listener.MouseListener;
 import de.linusdev.openclwindow.structs.CameraStruct;
 import de.linusdev.openclwindow.types.BBFloat3;
 import org.jetbrains.annotations.NotNull;
@@ -50,6 +53,19 @@ class OpenCLWindowJavaTest {
         window.setProgramCodeOfResource("render.cl", "-cl-std=CL2.0");
         window.setSize(800, 450);
         //window.setBorderlessFullscreen();
+
+        window.setInputMode(GLFWValues.InputMode.Mode.GLFW_CURSOR, GLFWValues.InputMode.Value.GLFW_CURSOR_NORMAL);
+        window.setMouseListener(new MouseListener() {
+            @Override
+            public void onMouseCursor(double xpos, double ypos) {
+                //System.out.println(xpos + " " + ypos);
+            }
+
+            @Override
+            public void onMouseButton(int button, int action, @NotNull LongVolatileBitfield<Modifiers> mods) {
+
+            }
+        });
 
         window.addKeyListener((key, scancode, action, mods) -> {
             //scancodes: w: 17, a:30, s:31, d: 32
