@@ -202,3 +202,36 @@ JNIEXPORT jstring JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava_get
     const char* name = glfwGetKeyName(key, scancode);
     return env->NewStringUTF(name);
 }
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _glfwSetCursorPos
+ * Signature: (JDD)V
+ */
+JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1glfwSetCursorPos
+        (JNIEnv* env, jclass clazz, jlong pointer, jdouble xpos, jdouble ypos) {
+    auto* win = (OpenClWindowJava*) pointer;
+    glfwSetCursorPos(win->getGLFWWindow(), xpos, ypos);
+}
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _createSharedRenderBuffer
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1createSharedRenderBuffer
+        (JNIEnv* env, jclass clazz, jlong pointer) {
+    auto* win = (OpenClWindowJava*) pointer;
+    return win->createSharedRenderBuffer();
+}
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _setBaseKernelArgs
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setBaseKernelArgs
+        (JNIEnv* env, jclass clazz, jlong pointer) {
+    auto* win = (OpenClWindowJava*) pointer;
+    return win->setBaseKernelArgs();
+}

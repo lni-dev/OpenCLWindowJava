@@ -13,6 +13,29 @@ targetCompatibility = JavaVersion.VERSION_17
 sourceCompatibility = JavaVersion.VERSION_17
 compileJava.options.encoding = 'UTF-8'
 
+enum CPPBuildType{
+    RELEASE("cmake-build-release", "lib", "a"),
+    DEBUG("cmake-build-debug", "lib", "a"),
+    DEBUG_VS("cmake-build-debug-visual-studio", "", "lib"),
+    ;
+
+    public final String folderName;
+    public final String filePrefix;
+    public final String fileEnding;
+
+    CPPBuildType (String folderName, String filePrefix, String fileEnding) {
+        this.folderName = folderName;
+        this.filePrefix = filePrefix;
+        this.fileEnding = fileEnding;
+    }
+}
+
+CPPBuildType BUILD_TYPE = CPPBuildType.DEBUG_VS
+
+test {
+    jvmArgs '-XX:+CreateCoredumpOnCrash';
+}
+
 repositories {
     mavenCentral()
 }
@@ -22,15 +45,21 @@ def cnlTask = tasks.register('copy-native-libraries') {
 
     def projectPath = project.projectDir.toPath()
 
-    def mainLib = projectPath.resolve("cmake-build-release\\libOpenCLWindowJava.jnilib")
-    def baseLib = projectPath.resolve("cmake-build-release\\libs\\OpenCLWindow\\libOpenCLWindow.a")
-    def gladLib = projectPath.resolve("cmake-build-release\\libs\\OpenCLWindow\\libs\\glad\\libglad.a")
-    def glfwLib = projectPath.resolve("cmake-build-release\\_deps\\glfw3-build\\src\\libglfw3.a")
+    def buildFolder = BUILD_TYPE.folderName;
+
+    def mainLib = projectPath.resolve(buildFolder + "\\" + BUILD_TYPE.filePrefix + "OpenCLWindowJava.jnilib")
+    def baseLib = projectPath.resolve(buildFolder + "\\libs\\OpenCLWindow\\" + BUILD_TYPE.filePrefix + "OpenCLWindow." + BUILD_TYPE.fileEnding)
+    def gladLib = projectPath.resolve(buildFolder + "\\libs\\OpenCLWindow\\libs\\glad\\" + BUILD_TYPE.filePrefix + "glad." + BUILD_TYPE.fileEnding)
+    def glfwLib = projectPath.resolve(buildFolder + "\\_deps\\glfw3-build\\src\\" + BUILD_TYPE.filePrefix + "glfw3." + BUILD_TYPE.fileEnding)
 
     if(Files.exists(mainLib) && Files.exists(baseLib) && Files.exists(gladLib) && Files.exists(glfwLib)) {
         project.logger.lifecycle("Copying c/++ libraries")
         def resourceMainDir = projectPath.resolve("src/main/resources/native-libraries")
         def resourceTestDir = projectPath.resolve("src/test/resources/native-libraries")
+
+        for(java.nio.file.Path f : Files.list(resourceMainDir)) Files.delete(f);
+        for(java.nio.file.Path f : Files.list(resourceTestDir)) Files.delete(f);
+
 
         Files.copy(mainLib, resourceMainDir.resolve(mainLib.getFileName()), StandardCopyOption.REPLACE_EXISTING)
         Files.copy(baseLib, resourceMainDir.resolve(baseLib.getFileName()), StandardCopyOption.REPLACE_EXISTING)

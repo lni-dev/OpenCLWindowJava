@@ -17,6 +17,7 @@
 package de.linusdev.openclwindow.nat;
 
 import de.linusdev.lutils.bitfield.LongVolatileBitfield;
+import de.linusdev.openclwindow.FrameInfo;
 import de.linusdev.openclwindow.buffer.AutoUpdateGPUBuffer;
 import de.linusdev.openclwindow.buffer.BufferAccess;
 import de.linusdev.openclwindow.enums.CLMemoryFlags;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
 
 class OpenCLWindowJavaTest {
 
@@ -50,12 +52,17 @@ class OpenCLWindowJavaTest {
                     info.getAverageMillisAutoBufferTime());*/
         });
         window.setTitle("Some Title");
+
         window.setProgramCodeOfResource("render.cl", "-cl-std=CL2.0");
         window.setSize(800, 450);
+
         //window.setBorderlessFullscreen();
 
+        if(OpenCLWindowJava.isRawMouseMotionSupported()) {
+            window.setInputMode(GLFWValues.InputMode.Mode.GLFW_RAW_MOUSE_MOTION, GLFWValues.InputMode.Value.GLFW_TRUE);
+        }
         window.setInputMode(GLFWValues.InputMode.Mode.GLFW_CURSOR, GLFWValues.InputMode.Value.GLFW_CURSOR_NORMAL);
-        window.setMouseListener(new MouseListener() {
+        window.addMouseListener(new MouseListener() {
             @Override
             public void onMouseCursor(double xpos, double ypos) {
                 //System.out.println(xpos + " " + ypos);
@@ -67,30 +74,26 @@ class OpenCLWindowJavaTest {
             }
         });
 
-        window.addKeyListener((key, scancode, action, mods) -> {
-            //scancodes: w: 17, a:30, s:31, d: 32
 
-            if(action == GLFWValues.Actions.GLFW_PRESS || action == GLFWValues.Actions.GLFW_REPEAT) {
-                if(scancode == 17) {
-                    cam.position.x(cam.position.x() + 0.05f);
-                    cam.position.modified();
-                } else if(scancode == 30) {
-                    cam.position.z(cam.position.z() + 0.05f);
-                    cam.position.modified();
-                }  else if(scancode == 31) {
-                    cam.position.x(cam.position.x() - 0.05f);
-                    cam.position.modified();
-                }  else if(scancode == 32) {
-                    cam.position.z(cam.position.z() - 0.05f);
-                    cam.position.modified();
-                }
-            }
-
-
-        });
 
         AutoUpdateGPUBuffer buf = new AutoUpdateGPUBuffer(window, cam,
                 BufferAccess.HOST_WRITE_KERNEL_READ, CLMemoryFlags.CL_MEM_COPY_HOST_PTR);
+
+        window.addKeyListener((key, scancode, action, mods) -> {
+            if(scancode == 63 && action == GLFWValues.Actions.GLFW_PRESS) {
+                window.enqueueRunnable(() -> {
+                    try {
+                        window.setProgramCodeOfFile(
+                                Path.of("C:\\Users\\Linus\\Desktop\\Programming\\" +
+                                        "Projects\\OpenCLWindowJava\\src\\test\\resources\\render.cl"),
+                                "-cl-std=CL2.0");
+                        window.setKernelArg(2, buf);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+            }
+        });
 
         window.setKernelArg(2, buf);
         window.show();
@@ -119,29 +122,32 @@ class OpenCLWindowJavaTest {
         input.start();
 
         InputManager im = window.getInputManager();
-        while (!window.checkIfWindowShouldClose()) {
+        FrameInfo fi = window.getFrameInfo();
+        while (!window.check()) {
             window.render();
             window.swapBuffer();
             window.checkAutoUpdateBuffer();
 
+            float dt = (float) fi.getDeltaTime();
+
             //scancodes: w: 17, a:30, s:31, d: 32
             if(im.isPressed(17)) {
-                cam.position.x(cam.position.x() + 0.05f);
+                cam.position.x(cam.position.x() + 2.5f * dt);
                 cam.position.modified();
             }
 
             if (im.isPressed(30)) {
-                cam.position.z(cam.position.z() + 0.05f);
+                cam.position.z(cam.position.z() + 2.5f * dt);
                 cam.position.modified();
             }
 
             if (im.isPressed(31)) {
-                cam.position.x(cam.position.x() - 0.05f);
+                cam.position.x(cam.position.x() - 2.5f * dt);
                 cam.position.modified();
             }
 
             if (im.isPressed(32)) {
-                cam.position.z(cam.position.z() - 0.05f);
+                cam.position.z(cam.position.z() - 2.5f * dt);
                 cam.position.modified();
             }
 

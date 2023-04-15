@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.24)
 project(OpenCLWindowJava VERSION 1.0.0 DESCRIPTION "OpenCL Rendering Library JNI Bindings")
 include(UseJava)
 
-add_link_options(-static-libgcc -static-libstdc++ -static -Wl,--kill-at)
+add_link_options(-static-libgcc -static-libstdc++ -static)
 
 set(CMAKE_CXX_STANDARD 23)
 
@@ -28,7 +28,6 @@ add_library(${PROJECT_NAME} MODULE
         )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".jnilib")
-
 
 
 target_link_libraries(${PROJECT_NAME}

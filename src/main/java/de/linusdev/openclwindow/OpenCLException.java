@@ -27,6 +27,12 @@ public class OpenCLException extends RuntimeException {
         this.code = code;
     }
 
+    public static void check(int code) {
+        if(code != OpenCLErrorCodes.CL_SUCCESS.getCode()) {
+            throw new OpenCLException(OpenCLErrorCodes.checkError(code));
+        }
+    }
+
     @Override
     public String getMessage() {
         return code.toString();

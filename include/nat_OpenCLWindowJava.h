@@ -97,6 +97,22 @@ JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setP
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _createSharedRenderBuffer
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1createSharedRenderBuffer
+        (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _setBaseKernelArgs
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setBaseKernelArgs
+        (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
  * Method:    _setKernelArg
  * Signature: (JILjava/nio/ByteBuffer;I)I
  */
@@ -118,6 +134,14 @@ JNIEXPORT jint JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1setK
  */
 JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1glfwSetInputMode
         (JNIEnv *, jclass, jlong, jint, jint);
+
+/*
+ * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava
+ * Method:    _glfwSetCursorPos
+ * Signature: (JDD)V
+ */
+JNIEXPORT void JNICALL Java_de_linusdev_openclwindow_nat_OpenCLWindowJava__1glfwSetCursorPos
+        (JNIEnv *, jclass, jlong, jdouble, jdouble);
 
 /*
  * Class:     de_linusdev_openclwindow_nat_OpenCLWindowJava

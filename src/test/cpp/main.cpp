@@ -27,7 +27,9 @@ int main() {
     w.setTitle("test");
     w.setSize(800, 450);
     //w.setBorderlessFullscreen();
+    w.createSharedRenderBuffer();
     w.setProgramCode(readResourceFile("render.cl"), NULL);
+    w.setBaseKernelArgs();
     w.show();
 
     while (!w.checkIfWindowShouldClose())

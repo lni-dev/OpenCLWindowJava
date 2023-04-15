@@ -32,12 +32,42 @@ public class LibraryLoader {
     private final @NotNull String mainLibResourcePath;
     private final @NotNull String @NotNull[] dependentLibResourcePaths;
 
+    private final @NotNull ClassLoader c;
+
     private boolean exported;
     private Path mainLibPath = null;
 
-    public LibraryLoader(@NotNull String mainLibResourcePath, @NotNull String @NotNull ... dependentLibResourcePaths) {
+    public LibraryLoader(@NotNull Class<?> caller, @NotNull String libFolder, @NotNull String mainLibName, @NotNull String @NotNull ... dependentNames) {
+
+        c = caller.getClassLoader();
+
+        if(c.getResource(libFolder + "lib" + mainLibName) != null) {
+            mainLibResourcePath = libFolder + "lib" + mainLibName;
+        } else if(c.getResource(libFolder + mainLibName) != null) {
+            mainLibResourcePath = libFolder + mainLibName;
+        } else {
+            throw new IllegalArgumentException("Cannot find dependent '" + mainLibName + "'.");
+        }
+
+        dependentLibResourcePaths = new String[dependentNames.length];
+
+        int i = 0;
+        for(String name : dependentNames) {
+            if(c.getResource(libFolder + "lib" + name + ".a") != null) {
+                dependentLibResourcePaths[i] = libFolder + "lib" + name + ".a";
+            } else if(c.getResource(libFolder + name + ".lib") != null) {
+                dependentLibResourcePaths[i] = libFolder + name + ".lib";
+            } else {
+                throw new IllegalArgumentException("Cannot find dependent '" + name + "'.");
+            }
+            i++;
+        }
+    }
+
+    public LibraryLoader(@NotNull String mainLibResourcePath, @NotNull Class<?> caller,  @NotNull String @NotNull ... dependentLibResourcePaths) {
         this.mainLibResourcePath = mainLibResourcePath;
         this.dependentLibResourcePaths = dependentLibResourcePaths;
+        this.c = caller.getClassLoader();
 
     }
 

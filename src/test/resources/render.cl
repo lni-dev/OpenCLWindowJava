@@ -106,7 +106,7 @@ typedef struct Light{
 }Light;
 
 Light lights[1] = { 
-  (Light){float3(0., 13., 0.), float3(3., 3., 3.), toFloat3(0.0), 0.0}
+  (Light){float3(0., 13., 0.), float3(1., 1., 1.), toFloat3(0.0), 0.0}
 };
 
 Hit rayMarch(Ray r){
@@ -154,9 +154,9 @@ float4 mainImage(float2 uv, camera cam) {
     
     if(hit.id != NO_HIT_ID){
         if(hit.id == GROUND_ID){
-            col.xyz = float3(.6, 0.4, 0.25);
+            col.xyz = float3(1.0f, .1f, 1.f);
         }else if(hit.id == BOX_1_ID){
-            col.xyz = float3(0.9, 0.9, 0.2);
+            col.xyz = float3(0.9, 0.0, 0.0);
         }
         
         float3 normal = getNormal(hit.pos);
@@ -178,7 +178,7 @@ float4 mainImage(float2 uv, camera cam) {
                 
                 float inte = angleFact*disFact;
 
-                lightColor += light.color * inte;          
+                lightColor += light.color * toFloat3(inte);
             }
             
         }

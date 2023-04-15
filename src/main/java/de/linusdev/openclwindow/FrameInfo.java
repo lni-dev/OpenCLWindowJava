@@ -35,6 +35,8 @@ public class FrameInfo {
 
     int frameCount = 0;
 
+    private double deltaTime = 1d / 60d;
+
     public FrameInfo(int averageOverFrames, @Nullable UpdateListener listener) {
         this.averageOverFrames = averageOverFrames;
         this.listener = listener;
@@ -45,17 +47,22 @@ public class FrameInfo {
     }
 
     public void submitFrame(long millis) {
+
+        deltaTime = (deltaTime + ((double) millis) / 1000d) / 2d;
+
         frameMillisSum += millis;
 
         if(frameCount++ >= averageOverFrames) {
             averageMillisBetweenFrames = frameMillisSum / (double) frameCount;
             averageMillisRenderTime = renderMillisSum / (double) frameCount;
             averageMillisAutoBufferTime = autoBufferMillisSum / (double) frameCount;
+            averageMillisSwapBufferTime = swapBufferMillisSum / (double) frameCount;
 
             frameCount = 0;
             renderMillisSum = 0;
             frameMillisSum = 0;
             autoBufferMillisSum = 0;
+            swapBufferMillisSum = 0;
 
             if(listener != null)
                 listener.onUpdate(this);
@@ -76,6 +83,10 @@ public class FrameInfo {
 
     public double getFPS() {
         return 1000d / averageMillisBetweenFrames;
+    }
+
+    public double getDeltaTime() {
+        return deltaTime;
     }
 
     public double getAverageMillisBetweenFrames() {

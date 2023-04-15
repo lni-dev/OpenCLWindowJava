@@ -40,16 +40,25 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class OpenCLWindowJava implements AutoCloseable {
 
     static {
         //System.load("C:\\Users\\Linus\\Desktop\\Programming\\Projects\\openclwindow\\cmake-build-release\\libOpenCLWindowJava.jnilib");
-        LibraryLoader loader = new LibraryLoader("native-libraries/libOpenCLWindowJava.jnilib",
+        /*LibraryLoader loader = new LibraryLoader("native-libraries/libOpenCLWindowJava.jnilib", OpenCLWindowJava.class,
                 "native-libraries/libglfw3.a",
                 "native-libraries/libglad.a",
-                "native-libraries/libOpenCLWindow.a");
+                "native-libraries/libOpenCLWindow.a");*/
+
+        LibraryLoader loader = new LibraryLoader(
+                OpenCLWindowJava.class, "native-libraries/", "OpenCLWindowJava.jnilib",
+                "glfw3", "glad", "OpenCLWindow"
+                );
 
         try {
             loader.load();
@@ -60,11 +69,12 @@ public class OpenCLWindowJava implements AutoCloseable {
     }
 
     private final long objectPointer;
+    private boolean programCodeSet = false;
 
     //listener
     private final LongVolatileBitfield<Modifiers> lastMods = new LongVolatileBitfield<>();
     private List<KeyListener> keyListeners = new LLinkedList<>();
-    private MouseListener mouseListener = null;
+    private List<MouseListener> mouseListeners = new LLinkedList<>();
     private List<CharListener> charListeners = new LLinkedList<>();
 
     //other
@@ -74,11 +84,21 @@ public class OpenCLWindowJava implements AutoCloseable {
 
     private final @NotNull InputManager inputManager;
 
+    //runnable-queue
+    private final @NotNull ConcurrentLinkedQueue<Runnable> runnableQueue;
+
     public OpenCLWindowJava() {
         objectPointer = _create();
         this.buffers = new LLinkedList<>();
         this.frameInfo = new FrameInfo(100, null);
         this.inputManager = new InputManager(this);
+        this.runnableQueue = new ConcurrentLinkedQueue<>();
+    }
+
+    private void createSharedRenderBuffer() {
+        OpenCLException.check(_createSharedRenderBuffer(objectPointer));
+        if(programCodeSet)
+            OpenCLException.check(_setBaseKernelArgs(objectPointer));
     }
 
     public void show() {
@@ -91,6 +111,7 @@ public class OpenCLWindowJava implements AutoCloseable {
 
     public void setSize(int width, int height) {
         _setSize(objectPointer, width, height);
+        createSharedRenderBuffer();
     }
 
     public void setBorderlessFullscreen() {
@@ -98,7 +119,9 @@ public class OpenCLWindowJava implements AutoCloseable {
     }
 
     public void setProgramCode(@NotNull String code, @Nullable String options) {
+        programCodeSet = true;
         _setProgramCode(objectPointer, code, options);
+        _setBaseKernelArgs(objectPointer);
     }
 
     public void setProgramCodeOfResource(@NotNull String resourcePath, @Nullable String options) throws IOException {
@@ -127,6 +150,20 @@ public class OpenCLWindowJava implements AutoCloseable {
         }
     }
 
+    public void setProgramCodeOfFile(@NotNull Path path, @Nullable String options) throws IOException {
+        try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            StringBuilder sb = new StringBuilder();
+            char[] buf = new char[1024*8];
+
+            int readCount;
+            while ((readCount = reader.read(buf)) != -1) {
+                sb.append(buf, 0, readCount);
+            }
+
+            setProgramCode(sb.toString(), options);
+        }
+    }
+
     public void setFrameListener(@Nullable FrameInfo.UpdateListener listener) {
         frameInfo.setListener(listener);
     }
@@ -139,8 +176,12 @@ public class OpenCLWindowJava implements AutoCloseable {
         keyListeners.remove(listener);
     }
 
-    public void setMouseListener(@Nullable MouseListener mouseListener) {
-        this.mouseListener = mouseListener;
+    public void addMouseListener(@NotNull MouseListener mouseListener) {
+        this.mouseListeners.add(mouseListener);
+    }
+
+    public void removeMouseListener(@NotNull MouseListener mouseListener) {
+        this.mouseListeners.remove(mouseListener);
     }
 
     public void addCharListener(@NotNull CharListener listener) {
@@ -163,13 +204,22 @@ public class OpenCLWindowJava implements AutoCloseable {
             throw new OpenCLException(OpenCLErrorCodes.checkError(err));
     }
 
-    public boolean checkIfWindowShouldClose() {
+    public boolean check() {
         long currentTime = System.currentTimeMillis();
         if(frameStartTime != 0)
             frameInfo.submitFrame(currentTime - frameStartTime);
         frameStartTime = currentTime;
 
+        @Nullable Runnable runnable;
+        while((runnable = runnableQueue.poll()) != null) {
+            runnable.run();
+        }
+
         return _checkIfWindowShouldClose(objectPointer);
+    }
+
+    public void enqueueRunnable(@NotNull Runnable runnable) {
+        runnableQueue.add(runnable);
     }
 
     public void render() {
@@ -195,6 +245,10 @@ public class OpenCLWindowJava implements AutoCloseable {
             @MagicConstant(valuesFromClass = GLFWValues.InputMode.Value.class) int value
     ) {
         _glfwSetInputMode(objectPointer, mode, value);
+    }
+
+    public void setCursorPos(double xpos, double ypos) {
+        _glfwSetCursorPos(objectPointer, xpos, ypos);
     }
 
     @Override
@@ -225,6 +279,10 @@ public class OpenCLWindowJava implements AutoCloseable {
         return inputManager;
     }
 
+    public @NotNull FrameInfo getFrameInfo() {
+        return frameInfo;
+    }
+
     //package-private
     long getPointer() {
         return objectPointer;
@@ -242,9 +300,12 @@ public class OpenCLWindowJava implements AutoCloseable {
     private native void _setSize(long pointer, int width, int height);
     private native void _setBorderlessFullscreen(long pointer);
     private native void _setProgramCode(long pointer, String code, String options);
+    private static native int _createSharedRenderBuffer(long pointer);
+    private static native int _setBaseKernelArgs(long pointer);
     private native int _setKernelArg(long pointer, int index, ByteBuffer buffer, int bufSize);
     private static native int _setKernelArg(long pointer, int index, long clBufferPointer);
     private static native void _glfwSetInputMode(long pointer, @MagicConstant(valuesFromClass = GLFWValues.InputMode.Mode.class) int mode, @MagicConstant(valuesFromClass = GLFWValues.InputMode.Value.class) int value);
+    private static native void _glfwSetCursorPos(long pointer, double xpos, double ypos);
 
     //public native
     public static native boolean isRawMouseMotionSupported();
@@ -261,14 +322,14 @@ public class OpenCLWindowJava implements AutoCloseable {
     }
 
     private void onMouseCursor(double xpos, double ypos) {
-        if(mouseListener != null)
-            mouseListener.onMouseCursor(xpos, ypos);
+        for(MouseListener listener : mouseListeners)
+            listener.onMouseCursor(xpos, ypos);
     }
 
     private void onMouseButton(int button, int action, int mods) {
         lastMods.replaceWith(mods);
-        if(mouseListener != null)
-            mouseListener.onMouseButton(button, action, lastMods);
+        for(MouseListener listener : mouseListeners)
+            listener.onMouseButton(button, action, lastMods);
     }
 
     private void onChar(int codepoint) {

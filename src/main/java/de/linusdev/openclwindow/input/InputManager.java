@@ -21,6 +21,7 @@ import de.linusdev.openclwindow.enums.GLFWValues;
 import de.linusdev.openclwindow.enums.Modifiers;
 import de.linusdev.openclwindow.listener.KeyListener;
 import de.linusdev.openclwindow.nat.OpenCLWindowJava;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 public class InputManager implements KeyListener {
@@ -60,6 +61,7 @@ public class InputManager implements KeyListener {
         scancodes[scancode / 32] &= ~(1 << (scancode & 31));
     }
 
+    @ApiStatus.Internal
     @Override
     public void onKey(int key, int scancode, int action, @NotNull LongVolatileBitfield<Modifiers> mods) {
         if(action == GLFWValues.Actions.GLFW_PRESS)
